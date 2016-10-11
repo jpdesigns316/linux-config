@@ -4,16 +4,6 @@ This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full
 
 *NOTE:* **DO NOT** navigate through the system as root. After creating the 'grader' account and giving him adminitrator permissions (use of sudo), immediately change to that user. Navigating a Linux system as root can be a security risk.
 
-# Table of Contents
-1. [Getting Started] (#Getting)
-2. [Updating, Upgrading, and Installing] (#Updating)
-3. [Configuring Timezone to UTC] (#configuring)
-4. [Modifying SSH port] (#modifying)
-5. [What is a Fire Wall?] {#what) also include how to set up UFW.
-6. [Prepping Linux Filesystem to run Python web server] (#prepping)
-7. [Sources Used] (#sources)
-
----
 ## Getting started
 
 Copy the text in the note declaring the PGP key into a file called `udacity_key.rsa` in the `~/.ssh/` directory of your computer. Then you will be ready to connect to the server.
