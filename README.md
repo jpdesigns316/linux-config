@@ -5,12 +5,12 @@ This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full
 *NOTE:* **DO NOT** navigate through the system as root. After creating the 'grader' account and giving him adminitrator permissions (use of sudo), immediately change to that user. Navigating a Linux system as root can be a security risk.
 
 # Table of Contents
-1. [Getting Started] (#Getting-started)
-2. [Updating, Upgrading, and Installing] (#Updating-Upgrading-and-Installing)
-3. [Configuring Timezone to UTC] (#Configuring-Timezone-to-UTC)
-4. [Modifying SSH port] (#Modifying-SSH-port)
-5. [What is a Fire Wall] {#What-is-a-Fire-Wall) also include how to set up UFW.
-6. [Prepping Linux Filesystem to run Python web server] (#Prepping-Linux-Filesystem-to-run-Python-web-server)
+1. [Getting Started] (#getting-started)
+2. [Updating, Upgrading, and Installing] (#updating-upgrading-and-unstalling)
+3. [Configuring Timezone to UTC] (#configuring-timezone-to-utc)
+4. [Modifying SSH port] (#modifying-SSH-port)
+5. [What is a Firewall] (#what-is-a-firewall) also include how to set up UFW.
+6. [Prepping Linux Filesystem to run Python web server] (#prepping-linux-filesystem-to-run-python-web-server)
 7. [Sources Used] (#sources-used)
 
 ---
@@ -143,9 +143,9 @@ Here are some methods which could be used to connect to the server easier just m
 alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@ip-10-20-59-174"
 ```
 
-## What is a Fire Wall?
+## What is a Firewall?
 
-Source: Udacity [Intro to URW] (https://youtu.be/NYHrggI0wK0)
+Source: Udacity [Intro to UFW] (https://youtu.be/NYHrggI0wK0)
 
 Configuring a firewall is a vital step in Network Security. Many hackers will try to gain access to machines through carelessly open ports. There are many [well-known ports] (https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers#Well-known_ports) there are used by various different applications. By knowing good network security yous should learn to close them. Some other tools that could be helpful to learn, in addition to UFW, are `netstat`, `iptables', 'nmap', `lsof`.
 
