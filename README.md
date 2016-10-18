@@ -1,17 +1,19 @@
 # Linux Server Configuration
 
-This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full Stack Web Developer] (https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004). The purpose of this proect was to learn how to set up the network configuration via a Linux server. Network security is important to have and to be able to configure. As a Full Stack Web Developer, one would neeed to know how this process works without having a Linux System Administartor setting things up.
+This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full Stack Web Developer] (https://www.udacity.com/course/full-stack-web-developer-nanodegree--nd004). The purpose of this project was to learn how to set up the network configuration via a Linux server. Network security is important to have and to be able to configure. As a Full Stack Web Developer, one would need to know how this process works without having a Linux System administrator setting things up.
 
-*NOTE:* **DO NOT** navigate through the system as root. After creating the 'grader' account and giving him adminitrator permissions (use of sudo), immediately change to that user. Navigating a Linux system as root can be a security risk.
+*NOTE:* **DO NOT** navigate through the system as root. After creating the 'grader' account and giving him administrator permissions (use of sudo), immediately change to that user. Navigating a Linux system as root can be a security risk.
 
 # Table of Contents
 1. [Getting Started] (#getting-started)
 2. [Updating, Upgrading, and Installing] (#updating-upgrading-and-unstalling)
 3. [Configuring Timezone to UTC] (#configuring-timezone-to-utc)
 4. [Modifying SSH port] (#modifying-SSH-port)
-5. [What is a Firewall] (#what-is-a-firewall) also include how to set up UFW.
-6. [Prepping Linux Filesystem to run Python web server] (#prepping-linux-filesystem-to-run-python-web-server)
-7. [Sources Used] (#sources-used)
+5. [Making Account Secure] (#making-account-secure)
+6. [What is a Firewall] (#what-is-a-firewall) also include how to set up UFW.
+7. [Configuring Protgres SQL] (#configuring-protgres-sql)
+8. [Configure Web Server] (#configure-web-server)
+9. [Sources Used] (#sources-used)
 
 ---
 ## Getting started
@@ -34,7 +36,7 @@ adduser grader
 
 Source: Udacity [Giving Sudo Access] (https://youtu.be/32u1qTPN5eQ), (Negus 59-61)
 
-The file that is used to grant sudo permissions is  `/etc/sudoers` however, this file could be modified by updrading the os or installing packages. There still is another method which could be used to give permissions, and that is via ```/etc/sudoer.d``` directory.
+The file that is used to grant sudo permissions is  `/etc/sudoers` however, this file could be modified by upgrading the os or installing packages. There still is another method which could be used to give permissions, and that is via ```/etc/sudoer.d``` directory.
 
 Using your favorite text editor create a new file:
 ```
@@ -44,7 +46,7 @@ Type the following:
 ```
 grader ALL=(ALL) NOPASSWD:ALL
 ```
-Save the file and exit. Switch to the newly created 'grader' account that now how `sudo` permissions, and go to the home directoy. You no longer need to be in root.
+Save the file and exit. Switch to the newly created 'grader' account that now how `sudo` permissions, and go to the home directory. You no longer need to be in root.
 ```
 su grader
 cd ~
@@ -79,16 +81,14 @@ sudo apt-get install ntp
 -  _git-all_ - Git
 -  _ntp_ - Network Time Protocol
 
-Finally use the `git` command to put a copy of your project on the server.
-```
-cd /www
-git clone https://github.com/jpdesigns316/item-catalog.git item-catalog
-```
+
+
+
 ## Configuring Timezone to UTC
 
 **Setting time via CLI**
 Source: (Negus 202)
-The Linux filesytem store infomration about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
+The Linux filesytem store information about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
 ```
 sudo cp -f /usr/share/timezone/UCT /etc/localtime
 ```
@@ -112,6 +112,8 @@ sudo nano /etc/ssh/ssh_config
 Change the port from 22 to 2200
 
 ## Making new account secure
+
+It is important to secure a connetion. There is a method in which you can use to connect to a site and not have to keep putting in your password.  To do this requires you to set up a PGP key. Think of it as having a locked box in which you only have access to. This is your _private_ key.  This is used when connecting to a site. When you connect to it, the site will check the directories that store the _public_ key information. If your _private_ key matches it, then it will let you in.
 
 ### Creating a PGP (Pretty Good Privacy)
 
@@ -184,14 +186,98 @@ sudo ufw allow ntp
 sudo ufw enable
 ```
 
-## Prepping Linux Filesystem to run Python web server
+## Configuring Protgres SQL
 
+Create 'catalog' as a user so it could create and modify PSQL files.
 
+Type the following command switches to a user which will allows create/modify actions on how protgres sql works
 
+```
+sudo su - protgres
+```
 
+## Congiuring Webserver
 
-### Creating virtual environment
-A virtual envrionment is ususually important to create when running applications Python/Djangos. This is so you can create and environment that hold the dependencies for specific modules. One program could depend on one version of a file, whereas another could use a different version. Instead of pointing in multiple locations, just use a vitural environment. The following is how to set it up:
+There are two things that will be needed to run the Python app that was created in a prior project. They are Apache2 and Python-WSGI
+
+### Setting up Apache Web Server
+
+### Setting up Python WSGI
+
+Source: [Digital Ocean] (https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vpscd/)
+
+#### What is WSGI?
+In order for a Python program to be running innately, or without using Django, you need to create an interface between the program and the Apache web server.  WSGI stands for Web Server Gateway Interface. For more info on it, [click here] (https://www.python.org/dev/peps/pep-0333/)
+
+### Installing and Configuring WSGI
+
+After you have installed Apache, as per the instructions above, you need to get the latest version of python-wsgi. Once you get it installed, enable it.
+```
+sudo apt-get install libapache2-mod-wsgi python-dev
+sudo a2enmod wsgi
+```
+The directory that was created specifically by Apache is `/var/www` which is the directory that you will be working from. Change to that directory and install the repository,
+```
+cd /var/www
+git clone https://github.com/jpdesigns316/item-catalog.git item-catalog
+```
+After this you will need to set up some files so that the WSGI will be able to work. The first could be found in `/etc/apache2/sites-available`.
+
+```
+cd /etc/apache2/sites-available
+sudo nano AppName.conf
+```
+AppName is the name of the app you wish the Virtual Host to be able to run the Python Server. You can use any text editor that you are confortable with. Add the following to that file
+```
+<VirtualHost *:80>
+		ServerName http://ec2-XX-XX-XX-XXX.us-west-2.compute.amazonaws.com
+		ServerAdmin admin@mywebsite.com
+		WSGIScriptAlias / /var/www/catalog/AppName.wsgi
+		<Directory /var/www/catalog/Dir_Where_Main_file_Is/>
+			Order allow,deny
+			Allow from all
+		</Directory>
+		Alias /static /var/www/catalog/Dir_Where_Main_file_Is/static
+		<Directory /var/www/catalog/Dir_Where_Main_file_Is/static/>
+			Order allow,deny
+			Allow from all
+		</Directory>
+		ErrorLog ${APACHE_LOG_DIR}/error.log
+		LogLevel warn
+		CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+To enable it type
+```
+sudo a2enable AppName
+```
+
+## Creating WSGI file
+
+Return to the directory that you have set up the app in and start to create a new file.
+
+```
+cd /var/www/item-catalog
+sudo nano item-catalog.wsgi
+```
+Put the following text in there:
+```
+#!/usr/bin/python
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0,"/var/www/AppName/")
+
+from AppName import app as application
+application.secret_key = 'Add your secret key'
+```
+Restart the Apache server
+```
+sudo apache2 restart
+```
+
+## Creating virtual environment
+A virtual environment is important to create when running applications Python/Django. This is so you can create and environment that hold the dependencies for specific modules. One program could depend on one version of a file, whereas another could use a different version. Instead of pointing in multiple locations, just use a virtual environment. The following is how to set it up:
 
 Source: [Hitchhiker's Guide to Python] (http://docs.python-guide.org/en/latest/dev/virtualenvs/)
 
