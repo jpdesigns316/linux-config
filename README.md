@@ -34,7 +34,7 @@ adduser grader
 
 ### Giving user permissions to use `sudo` command
 
-Source: Udacity [Giving Sudo Access] (https://youtu.be/32u1qTPN5eQ), (Negus 59-61)
+Source: Udacity [Giving Sudo Access] (https://youtu.be/32u1qTPN5eQ), [Negus, 59-61] (#sources)
 
 The file that is used to grant sudo permissions is  `/etc/sudoers` however, this file could be modified by upgrading the os or installing packages. There still is another method which could be used to give permissions, and that is via ```/etc/sudoer.d``` directory.
 
@@ -54,7 +54,7 @@ cd ~
 
 ## Updating, Upgrading, and Installing
 
-Source: (Negus, 35-40)
+Source: [Negus, pg 35-40] (#sources)
 
 For  ```apt-get``` route use these commands:
 ```
@@ -69,25 +69,29 @@ and the last one will clean up the files. (Bresnahan 68-70, Negus 25-31)
 The following will install the needed packages for this project
 ```
 sudo apt-get install apache2
-sudo apt-get install protgresql-9.9
+sudo apt-get install protgresql-9.4
 sudo apt-get install python-pip python-dev build-essential
 sudo pip install --upgrade pip
 sudo apt-get install git-all
 sudo apt-get install ntp
+```
+Following two source: [Stack Overflow] (http://stackoverflow.com/questions/28253681/you-need-to-install-postgresql-server-dev-x-y-for-building-a-server-side-extensi)
+```
+sudo apt-get install python-psycopg2
+sudo apt-get install libpq-dev
 ```
 - _apache2_ - Apache Web Server
 - _protgresql-9.4_ - Progres SQL v9.4
 - _python-pip_ - Pip installation tool for Python (Instructions that follow are how to set it up)
 -  _git-all_ - Git
 -  _ntp_ - Network Time Protocol
-
-
-
+- _python-psycopg_ - [PostgreSQL adpter for Python] (http://initd.org/psycopg/)
+- _libpq-dev_ - Psycopg biniaries
 
 ## Configuring Timezone to UTC
 
 **Setting time via CLI**
-Source: (Negus 202)
+Source: [Negus, pg 202] (#sources)
 The Linux filesytem store information about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
 ```
 sudo cp -f /usr/share/timezone/UCT /etc/localtime
@@ -113,14 +117,20 @@ Change the port from 22 to 2200
 
 ## Making new account secure
 
+Source: [Dulaney, pg. 139-140] ] (#sources)
+
 It is important to secure a connetion. There is a method in which you can use to connect to a site and not have to keep putting in your password.  To do this requires you to set up a PGP key. Think of it as having a locked box in which you only have access to. This is your _private_ key.  This is used when connecting to a site. When you connect to it, the site will check the directories that store the _public_ key information. If your _private_ key matches it, then it will let you in.
+
+It is also important to create a strong password. For the purposes of this project they are simple so that one can configure the Linux server. However, in the real world you should create a password that meets these requirments:
+* They cannot contain the user's account name of parts of the user's full name that exceed tow consecutive characters.
+* They must be at least  eight characters in length.
+* They must have three of the following four set. (A-Z, a-z, 0-9, Non-Alpha Character
 
 ### Creating a PGP (Pretty Good Privacy)
 
-Source: (Bersnahan, pg 557-558)
+Source: [Bersnahan, pg 557-558] (#sources)
 
-
-To create a pgp key, on your local machine (not connected via ssh) in the ```~/.ssh`` directory type:
+To create a pgp key, on your local machine (not connected via ssh) in the `~/.ssh directory type:
 ```
 ssh-keygen
 ```
@@ -139,10 +149,12 @@ End the current session and reconnect as the `grader` with the key that was just
 ssh -i ~/.ssh/grader_key -p 2200 grader@ip-10-20-59-174
 ```
 If prompted for a passphrase, then enter it.
+
 ### Simplify SSH Login
+
 Here are some methods which could be used to connect to the server easier just make an `alias`:
 ```
-alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@ip-10-20-59-174"
+alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@54.71.92.238"
 ```
 
 ## What is a Firewall?
@@ -195,12 +207,42 @@ Type the following command switches to a user which will allows create/modify ac
 ```
 sudo su - protgres
 ```
+Use the command `createuser` to create the user `catalog` to set that account up
+
+```
+createuser --interactive
+Enter name of role to add: catalog
+Shall the new role be a superuser? (y/n) n
+Shall the new role be allowed to create databases? (y/n) y
+Shall the new role be allowed to create more new roles? (y/n) n
+```
+Now you need to set up the database for catalog to use
+```
+psql
+postgres=# CREATE DATABASE catalog OWNER catalog
+postgres=#\q
+```
+
+Alternatively you can use this to create the database
+
+Source: [Postgres Manual] (https://www.postgresql.org/docs/9.0/static/app-createdb.html)
+```
+createdb -U catalog -e catalog -h 127.0.0.1
+```
+You will be prompted for a password which is 'Bradycheated'
+
+Logout of the postgres account with either `logout` or `CTRL-D'
 
 ## Congiuring Webserver
 
 There are two things that will be needed to run the Python app that was created in a prior project. They are Apache2 and Python-WSGI
 
 ### Setting up Apache Web Server
+To install Apache type:
+```
+sudo apt-get install apache2
+sudo service apache2 restart
+```
 
 ### Setting up Python WSGI
 
@@ -271,6 +313,8 @@ sys.path.insert(0,"/var/www/AppName/")
 from AppName import app as application
 application.secret_key = 'Add your secret key'
 ```
+**Note**: There is a method you can use to specify exactly which applicaiton file that you wish to use.
+
 Restart the Apache server
 ```
 sudo apache2 restart
@@ -304,3 +348,4 @@ deactivate
 
 1. Bresnahan, Christine, and Richard Blum. [CompTIA Linux Powered by Linux Professional Institute Study Guide: Exams LX0-103 and Exam LX0-104.] (https://www.amazon.com/CompTIA-Security-Study-Guide-SY0-401/dp/1118875079/ref=sr_1_6?s=books&ie=UTF8&qid=1476121151&sr=1-6)
 2. Negus, Christopher. [Ubuntu Linux Toolbox: 1000 Commands for Power Users.] (https://www.amazon.com/Ubuntu-Linux-Toolbox-Commands-Debian/dp/1118183525/ref=sr_1_1?ie=UTF8&qid=1475887174&sr=8-1&keywords=ubuntu+toolbox) Wiley, 2013.
+3. Dulaney, Emmett, and Chuck Easttom. CompTIA Security Study Guide: SY0-401, 6th Edition. (https://www.amazon.com/CompTIA-Security-Study-Guide-SY0-401/dp/1118875079/ref=sr_1_2?ie=UTF8&qid=1476820442&sr=8-2)John Wiley & Sons, 2014.
