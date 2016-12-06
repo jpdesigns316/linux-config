@@ -92,9 +92,9 @@ sudo apt-get install libpq-dev
 
 **Setting time via CLI**
 Source: [Negus, pg 202] (#sources)
-The Linux filesytem store information about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
+The Linux filesytsem store information about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
 ```
-sudo cp -f /usr/share/timezone/UCT /etc/localtime
+sudo cp -f /usr/share/timezone/UTC/etc/localtime
 ```
 The ```-f``` attribute will force the system to overwrite the current ```localtime``` file.
 
@@ -102,16 +102,16 @@ The ```-f``` attribute will force the system to overwrite the current ```localti
 
 Setting time via NTP (Network Time Protocol (Source: Negus 204)
 
-Instead of using the ```/etc/ntp.conf``` file to set to the time, and possibly create security risks ```ntpdate```. This would be a better command to use to set the time daily via ```cron```.  Use this command to set it with this command:
+Instead of using the /etc/ntp.conf` file to set to the time, and possibly create security risks ntpdate`. This would be a better command to use to set the time daily via ```cron```.  Use this command to set it with this command:
 
 ```
 sudo ntpudate pool.ntp.org
 ```
 ## Modifying SSH port
 
-To change the SSH port you need to edit the `/etc/ssh/ssh_config` file.
+To change the SSH port you need to edit the `/etc/ssh/sshd.config` file.
 ```
-sudo nano /etc/ssh/ssh_config
+sudo nano /etc/ssh/sshd.config
 ```
 Change the port from 22 to 2200
 
@@ -119,9 +119,9 @@ Change the port from 22 to 2200
 
 Source: [Dulaney, pg. 139-140] ] (#sources)
 
-It is important to secure a connetion. There is a method in which you can use to connect to a site and not have to keep putting in your password.  To do this requires you to set up a PGP key. Think of it as having a locked box in which you only have access to. This is your _private_ key.  This is used when connecting to a site. When you connect to it, the site will check the directories that store the _public_ key information. If your _private_ key matches it, then it will let you in.
+It is important to secure a connection. There is a method in which you can use to connect to a site and not have to keep putting in your password.  To do this requires you to set up a PGP key. Think of it as having a locked box in which you only have access to. This is your _private_ key.  This is used when connecting to a site. When you connect to it, the site will check the directories that store the _public_ key information. If your _private_ key matches it, then it will let you in.
 
-It is also important to create a strong password. For the purposes of this project they are simple so that one can configure the Linux server. However, in the real world you should create a password that meets these requirments:
+It is also important to create a strong password. For the purposes of this project they are simple so that one can configure the Linux server. However, in the real world you should create a password that meets these requirements:
 * They cannot contain the user's account name of parts of the user's full name that exceed tow consecutive characters.
 * They must be at least  eight characters in length.
 * They must have three of the following four set. (A-Z, a-z, 0-9, Non-Alpha Character
@@ -130,7 +130,7 @@ It is also important to create a strong password. For the purposes of this proje
 
 Source: [Bersnahan, pg 557-558] (#sources)
 
-To create a pgp key, on your local machine (not connected via ssh) in the `~/.ssh directory type:
+To create a pgp key, on your local machine (not connected via ssh) in the `~/.ssh' directory type:
 ```
 ssh-keygen
 ```
@@ -140,7 +140,7 @@ mkdir -m 700 .ssh
 touch .ssh/authorized_keys
 nano .ssh/authorized_keys
 ```
-On your local machine copy the content of the `pub` file of the keygen you created and paste into the ```~/.ssh/authorized_keys`` file and save it then type:
+On your local machine copy the content of the `pub` file of the keygen you created and paste into the ~/.ssh/authorized_keys` file and save it then type:
 ```
 grader@ip-10-20-59-174:/home/grader$ chmod 644 .ssh/authorized_keys
 ```
