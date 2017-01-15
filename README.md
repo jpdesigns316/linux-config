@@ -20,17 +20,17 @@ This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full
 
 Copy the text in the note declaring the PGP key into a file called `udacity_key.rsa` in the `~/.ssh/` directory of your computer. Then you will be ready to connect to the server.
 ```
-ssh -i ~/.ssh/udacity_key.rsa -p 2200 root@54.71.92.238
+ssh -i ~/.ssh/udacity_key.rsa -p 2200 root@35.167.85.110
 ```
 
-
 ### Creating users and configuring permissions:
-
 
 To add a user you would use the ```adduser``` command.
 ```
 adduser grader
 ```
+
+grader password: Bradysucks
 
 ### Giving user permissions to use `sudo` command
 
@@ -66,20 +66,13 @@ The first command is used to update files. The second will upgrade the software,
 and the last one will clean up the files. (Bresnahan 68-70, Negus 25-31)
 
 
-The following will install the needed packages for this project
+Using `apt-get` you can install all the needed libraries on one line.
 ```
-sudo apt-get install apache2
-sudo apt-get install protgresql-9.4
-sudo apt-get install python-pip python-dev build-essential
+sudo apt-get install apache2 protgresql python-pip python-dev build-essential git-all ntp python-psycopg2 libpq-dev libapache2-mod-wsgi python-virtualenv
 sudo pip install --upgrade pip
-sudo apt-get install git-all
-sudo apt-get install ntp
 ```
-Following two source: [Stack Overflow] (http://stackoverflow.com/questions/28253681/you-need-to-install-postgresql-server-dev-x-y-for-building-a-server-side-extensi)
-```
-sudo apt-get install python-psycopg2
-sudo apt-get install libpq-dev
-```
+Source: [Stack Overflow] (http://stackoverflow.com/questions/28253681/you-need-to-install-postgresql-server-dev-x-y-for-building-a-server-side-extensi)
+
 - _apache2_ - Apache Web Server
 - _protgresql-9.4_ - Progres SQL v9.4
 - _python-pip_ - Pip installation tool for Python (Instructions that follow are how to set it up)
@@ -87,6 +80,8 @@ sudo apt-get install libpq-dev
 -  _ntp_ - Network Time Protocol
 - _python-psycopg_ - [PostgreSQL adpter for Python] (http://initd.org/psycopg/)
 - _libpq-dev_ - Psycopg biniaries
+- _python-virutalenv_ - The virtual environment used for installing modules to be used specifically for one app, and not be used to take up space on the hard drive.
+- _libapache2-mod-wsgi_ - The Web Server Gateway Interface mod for use on Apache Server.
 
 ## Configuring Timezone to UTC
 
@@ -109,9 +104,9 @@ sudo ntpudate pool.ntp.org
 ```
 ## Modifying SSH port
 
-To change the SSH port you need to edit the `/etc/ssh/sshd.config` file.
+To change the SSH port you need to edit the `/etc/ssh/sshd_config` file.
 ```
-sudo nano /etc/ssh/sshd.config
+sudo nano /etc/ssh/sshd_config
 ```
 Change the port from 22 to 2200
 
@@ -154,7 +149,7 @@ If prompted for a passphrase, then enter it.
 
 Here are some methods which could be used to connect to the server easier just make an `alias`:
 ```
-alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@54.71.92.238"
+alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@35.167.85.110"
 ```
 
 ## What is a Firewall?
@@ -219,30 +214,16 @@ Shall the new role be allowed to create more new roles? (y/n) n
 Now you need to set up the database for catalog to use
 ```
 psql
-postgres=# CREATE DATABASE catalog OWNER catalog
+postgres=# CREATE DATABASE catalog OWNER catalog;
 postgres=#\q
 ```
 
-Alternatively you can use this to create the database
+To exit the 'postgres' accout type `CTRL-D` or `exit`.
 
-Source: [Postgres Manual] (https://www.postgresql.org/docs/9.0/static/app-createdb.html)
-```
-createdb -U catalog -e catalog -h 127.0.0.1
-```
-You will be prompted for a password which is 'Bradycheated'
-
-Logout of the postgres account with either `logout` or `CTRL-D'
-
-## Congiuring Webserver
+## Confiuring Webserver
 
 There are two things that will be needed to run the Python app that was created in a prior project. They are Apache2 and Python-WSGI
 
-### Setting up Apache Web Server
-To install Apache type:
-```
-sudo apt-get install apache2
-sudo service apache2 restart
-```
 
 ### Setting up Python WSGI
 
@@ -255,7 +236,6 @@ In order for a Python program to be running innately, or without using Django, y
 
 After you have installed Apache, as per the instructions above, you need to get the latest version of python-wsgi. Once you get it installed, enable it.
 ```
-sudo apt-get install libapache2-mod-wsgi python-dev
 sudo a2enmod wsgi
 ```
 The directory that was created specifically by Apache is `/var/www` which is the directory that you will be working from. Change to that directory and install the repository,
@@ -263,58 +243,17 @@ The directory that was created specifically by Apache is `/var/www` which is the
 cd /var/www
 git clone https://github.com/jpdesigns316/item-catalog.git item-catalog
 ```
-After this you will need to set up some files so that the WSGI will be able to work. The first could be found in `/etc/apache2/sites-available`.
+
+After this you will need to set up some files so that the WSGI will be able to work. Copy the item-catalog file
+to `/etc/apache2/sites-available`
 
 ```
-cd /etc/apache2/sites-available
-sudo nano AppName.conf
-```
-AppName is the name of the app you wish the Virtual Host to be able to run the Python Server. You can use any text editor that you are confortable with. Add the following to that file
-```
-<VirtualHost *:80>
-		ServerName http://ec2-XX-XX-XX-XXX.us-west-2.compute.amazonaws.com
-		ServerAdmin admin@mywebsite.com
-		WSGIScriptAlias / /var/www/catalog/AppName.wsgi
-		<Directory /var/www/catalog/Dir_Where_Main_file_Is/>
-			Order allow,deny
-			Allow from all
-		</Directory>
-		Alias /static /var/www/catalog/Dir_Where_Main_file_Is/static
-		<Directory /var/www/catalog/Dir_Where_Main_file_Is/static/>
-			Order allow,deny
-			Allow from all
-		</Directory>
-		ErrorLog ${APACHE_LOG_DIR}/error.log
-		LogLevel warn
-		CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
+sudo mv /var/www/item-catalog/item-catalog.conf /etc/apache2/sites-available
 ```
 To enable it type
 ```
-sudo a2enable AppName
+sudo a2ensite item-catalog
 ```
-
-## Creating WSGI file
-
-Return to the directory that you have set up the app in and start to create a new file.
-
-```
-cd /var/www/item-catalog
-sudo nano item-catalog.wsgi
-```
-Put the following text in there:
-```
-#!/usr/bin/python
-import sys
-import logging
-logging.basicConfig(stream=sys.stderr)
-sys.path.insert(0,"/var/www/AppName/")
-
-from AppName import app as application
-application.secret_key = 'Add your secret key'
-```
-**Note**: There is a method you can use to specify exactly which applicaiton file that you wish to use.
-
 Restart the Apache server
 ```
 sudo apache2 restart
@@ -327,14 +266,14 @@ Source: [Hitchhiker's Guide to Python] (http://docs.python-guide.org/en/latest/d
 
 If you do not currently have `venv` installed get it with the following:
 ```
-sudo pip install virtualenv
+sudo -H pip install virtualenv
 ```
-If you already have it installed, change to the directory of the project that you wish to create the virtual environment for. For this project it is `/www/item-catalog/src`, however it could be different depending on what you have created.
+If you already have it installed, change to the directory of the project that you wish to create the virtual environment for. For this project it is `/www/FlaskApp/src`, however it could be different depending on what you have created.
 ```
 cd /www/item-catalog/src
-virutalenv
+sudo virutalenv venv
 ```
-virtualenv syntax: `venv -p [location of Python version] venv`
+virtualenv syntax: `sudo virtualenv -p /usr/bin/python2.7 venv`
 Now activate the newly created venv and install the modules you wish to use. After you have done so, exit the `venv`.
 ```
 source venv/bin/activate
