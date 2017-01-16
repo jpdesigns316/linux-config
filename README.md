@@ -224,7 +224,6 @@ To exit the 'postgres' accout type `CTRL-D` or `exit`.
 
 There are two things that will be needed to run the Python app that was created in a prior project. They are Apache2 and Python-WSGI
 
-
 ### Setting up Python WSGI
 
 Source: [Digital Ocean] (https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vpscd/)
@@ -241,7 +240,7 @@ sudo a2enmod wsgi
 The directory that was created specifically by Apache is `/var/www` which is the directory that you will be working from. Change to that directory and install the repository,
 ```
 cd /var/www
-git clone https://github.com/jpdesigns316/item-catalog.git item-catalog
+sudo git clone https://github.com/jpdesigns316/item-catalog.git item-catalog
 ```
 
 After this you will need to set up some files so that the WSGI will be able to work. Copy the item-catalog file
@@ -281,10 +280,13 @@ pip install -r requirements.txt
 deactivate
 ```
 
+# Website is now up
+
+Go to http://ec2-35-167-85-110.us-west-2.compute.amazonaws.com/ to see the web page active.
 
 ---
 ## Sources used:
 
 1. Bresnahan, Christine, and Richard Blum. [CompTIA Linux Powered by Linux Professional Institute Study Guide: Exams LX0-103 and Exam LX0-104.] (https://www.amazon.com/CompTIA-Security-Study-Guide-SY0-401/dp/1118875079/ref=sr_1_6?s=books&ie=UTF8&qid=1476121151&sr=1-6)
 2. Negus, Christopher. [Ubuntu Linux Toolbox: 1000 Commands for Power Users.] (https://www.amazon.com/Ubuntu-Linux-Toolbox-Commands-Debian/dp/1118183525/ref=sr_1_1?ie=UTF8&qid=1475887174&sr=8-1&keywords=ubuntu+toolbox) Wiley, 2013.
-3. Dulaney, Emmett, and Chuck Easttom. CompTIA Security Study Guide: SY0-401, 6th Edition. (https://www.amazon.com/CompTIA-Security-Study-Guide-SY0-401/dp/1118875079/ref=sr_1_2?ie=UTF8&qid=1476820442&sr=8-2)John Wiley & Sons, 2014.
+3. [Dulaney, Emmett, and Chuck Easttom. CompTIA Security Study Guide: SY0-401, 6th Edition.] (https://www.amazon.com/CompTIA-Security-Study-Guide-SY0-401/dp/1118875079/ref=sr_1_2?ie=UTF8&qid=1476820442&sr=8-2)John Wiley & Sons, 2014.
