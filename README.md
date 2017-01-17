@@ -20,7 +20,7 @@ This is project 5 of the [Udacity] (http://www.udacity.com) nanoDegree for [Full
 
 Copy the text in the note declaring the PGP key into a file called `udacity_key.rsa` in the `~/.ssh/` directory of your computer. Then you will be ready to connect to the server.
 ```
-ssh -i ~/.ssh/udacity_key.rsa -p 2200 root@35.167.85.110
+ssh -i ~/.ssh/udacity_key.rsa -p 2200 root@52.10.58.192
 ```
 
 ### Creating users and configuring permissions:
@@ -29,8 +29,6 @@ To add a user you would use the ```adduser``` command.
 ```
 adduser grader
 ```
-
-grader password: Bradysucks
 
 ### Giving user permissions to use `sudo` command
 
@@ -44,8 +42,10 @@ nano grader
 ```
 Type the following:
 ```
-grader ALL=(ALL) NOPASSWD:ALL
+grader ALL=(ALL) PASSWD:ALL
 ```
+
+
 Save the file and exit. Switch to the newly created 'grader' account that now how `sudo` permissions, and go to the home directory. You no longer need to be in root.
 ```
 su grader
@@ -68,7 +68,7 @@ and the last one will clean up the files. (Bresnahan 68-70, Negus 25-31)
 
 Using `apt-get` you can install all the needed libraries on one line.
 ```
-sudo apt-get install apache2 protgresql python-pip python-dev build-essential git-all ntp python-psycopg2 libpq-dev libapache2-mod-wsgi python-virtualenv
+sudo apt-get install apache2 postgresql python-pip python-dev build-essential git-all ntp python-psycopg2 libpq-dev libapache2-mod-wsgi python-virtualenv unattended-upgrades glances
 sudo pip install --upgrade pip
 ```
 Source: [Stack Overflow] (http://stackoverflow.com/questions/28253681/you-need-to-install-postgresql-server-dev-x-y-for-building-a-server-side-extensi)
@@ -82,14 +82,48 @@ Source: [Stack Overflow] (http://stackoverflow.com/questions/28253681/you-need-t
 - _libpq-dev_ - Psycopg biniaries
 - _python-virutalenv_ - The virtual environment used for installing modules to be used specifically for one app, and not be used to take up space on the hard drive.
 - _libapache2-mod-wsgi_ - The Web Server Gateway Interface mod for use on Apache Server.
+- _unattended-upgrade_  - Automatically install security unattended-upgrades
+- _glances_ - Glances is a free (LGPL) cross-platform curses-based monitoring tool.
 
+## Configuring unattended-upgrades
+
+Source: [Ubuntu Online Documentation] (https://help.ubuntu.com/community/AutomaticSecurityUpdates)
+
+To enable it type:
+```
+sudo dpkg-reconfigure --priority=low unattended-upgrades
+```
+Open up `/etc/apt/apt.conf.d/10periodic` in your favorite editor and change
+```
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "0";
+```
+to
+```
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::AutocleanInterval "7";
+APT::Periodic::Unattended-Upgrade "1";
+```
+
+## Configuring glances
+
+Soure: [Linux: Keep An Eye On Your System With Glances Monitor] (https://www.cyberciti.biz/faq/linux-install-glances-monitoring-tool/)
+
+Edit `/etc/default/glances` and change the line `RUN="false"` to `RUN="true"`
+
+Save and exit and start the service
+```
+sudo service glance start
+```
 ## Configuring Timezone to UTC
 
 **Setting time via CLI**
 Source: [Negus, pg 202] (#sources)
 The Linux filesytsem store information about each timezone in ``/usr/share/timezone`` directory. To get this done you need to run the command:
 ```
-sudo cp -f /usr/share/timezone/UTC/etc/localtime
+sudo cp -f /usr/share/zoneinfo/Universal /etc/localtime
 ```
 The ```-f``` attribute will force the system to overwrite the current ```localtime``` file.
 
@@ -97,7 +131,7 @@ The ```-f``` attribute will force the system to overwrite the current ```localti
 
 Setting time via NTP (Network Time Protocol (Source: Negus 204)
 
-Instead of using the /etc/ntp.conf` file to set to the time, and possibly create security risks ntpdate`. This would be a better command to use to set the time daily via ```cron```.  Use this command to set it with this command:
+Instead of using the '/etc/ntp.conf` file to set to the time, and possibly create security risks ntpdate. This would be a better command to use to set the time daily via `cron`.  Use this command to set it with this command:
 
 ```
 sudo ntpudate pool.ntp.org
@@ -109,6 +143,11 @@ To change the SSH port you need to edit the `/etc/ssh/sshd_config` file.
 sudo nano /etc/ssh/sshd_config
 ```
 Change the port from 22 to 2200
+
+To *diasble* remote access to the root account alter the line in /etc/ssh/sshd_config:
+```
+PermitRootLogin  no
+```
 
 ## Making new account secure
 
@@ -131,17 +170,17 @@ ssh-keygen
 ```
 Enter `grader_key` for the pgp file. After confiuring your pgp file, you will need to put the public key on the server that you have set up by doing the following in the home directory:
 ```
-mkdir -m 700 .ssh
+sudo mkdir -m 700 .ssh
 touch .ssh/authorized_keys
 nano .ssh/authorized_keys
 ```
-On your local machine copy the content of the `pub` file of the keygen you created and paste into the ~/.ssh/authorized_keys` file and save it then type:
+On your local machine copy the contents of the `pub` file of the keygen you created and paste into the ~/.ssh/authorized_keys` file and save it then type:
 ```
-grader@ip-10-20-59-174:/home/grader$ chmod 644 .ssh/authorized_keys
+chmod 644 authorized_keys
 ```
 End the current session and reconnect as the `grader` with the key that was just generated with the following:
 ```
-ssh -i ~/.ssh/grader_key -p 2200 grader@ip-10-20-59-174
+ssh -i ~/.ssh/grader_key -p 2200 grader@52.10.58.192
 ```
 If prompted for a passphrase, then enter it.
 
@@ -149,7 +188,7 @@ If prompted for a passphrase, then enter it.
 
 Here are some methods which could be used to connect to the server easier just make an `alias`:
 ```
-alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@35.167.85.110"
+alias grader="ssh -i ~/.ssh/grader_key -p 2200 grader@52.10.58.192"
 ```
 
 ## What is a Firewall?
@@ -183,7 +222,7 @@ ufw [--dry-run] default allow|deny|reject [incoming|outgoing|routed]
 ```
 
 ```
-sudo ufw allow 2200/tcp`
+sudo ufw allow 2200/tcp
 sudo ufw allow www
 sudo ufw allow ntp
 ```
@@ -215,10 +254,11 @@ Now you need to set up the database for catalog to use
 ```
 psql
 postgres=# CREATE DATABASE catalog OWNER catalog;
+postgres=# ALTER ROLE catalog WITH PASSWORD 'catalog123';
 postgres=#\q
 ```
 
-To exit the 'postgres' accout type `CTRL-D` or `exit`.
+To exit the 'postgres' account type `CTRL-D` or `logout`.
 
 ## Confiuring Webserver
 
@@ -255,8 +295,28 @@ sudo a2ensite item-catalog
 ```
 Restart the Apache server
 ```
-sudo apache2 restart
+sudo service apache2 restart
 ```
+## Monitoring Apache Web server
+
+Source: [How To Install, Configure, And Use Modules In The Apache Web Server] (https://www.digitalocean.com/community/tutorials/how-to-install-configure-and-use-modules-in-the-apache-web-server)
+
+One of the most helpful and easiest modules to configure comes pre-installed and configured when you install Apache on Ubuntu. The mod_status module provides an overview of your server load and requests.
+
+If mod_status is not already active you can type `sudo /usr/sbin/a2enmod status` to activate it.
+
+Change the test in the '&lt;Locaiton /server-status&gt;' to look like this
+
+```
+<Location /server-status>
+	SetHandler server-status
+	Order deny,allow
+	Deny from all
+	Allow from 127.0.0.1 ::1
+	Allow from Your.IP.Address.Here
+</Location>
+```
+
 
 ## Creating virtual environment
 A virtual environment is important to create when running applications Python/Django. This is so you can create and environment that hold the dependencies for specific modules. One program could depend on one version of a file, whereas another could use a different version. Instead of pointing in multiple locations, just use a virtual environment. The following is how to set it up:
@@ -283,6 +343,8 @@ deactivate
 # Website is now up
 
 Go to http://ec2-35-167-85-110.us-west-2.compute.amazonaws.com/ to see the web page active.
+
+
 
 ---
 ## Sources used:
